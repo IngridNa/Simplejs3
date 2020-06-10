@@ -1,52 +1,124 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <link href="content/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" type="text/css" href="content/estilo.css" />
-    <title>SimplexJS</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>DoSimplex</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4"
+        crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm"
+        crossorigin="anonymous"></script>
+    <script src="simplex.js"></script>
+    <script src="./logicaInterface.js"></script>
 </head>
 
 <body>
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="card text-center">
-                <div class="card-header">
-                    <h3>Simplex com JS</h3>
-                </div>
-                <div class="card-body">
-                    <div class="container">
-                        <div class="row mt-5"></div>
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <center>
-                                    Este Projeto implementar e resolve o Algoritmo Simplex <br>e foi desenvolvido durante a matéria de Pesquisa Operacional
-                                </center>
-                            </div>
-                            <div class="col-lg-2"></div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-4"></div>
-                            <div class="col-lg-4 mt-4">
-                                <center>
-                                    <a class="btn btn-primary btn-lg" style="background-color: #9400d3" href="simplex.html" role="button">Iniciar Simplex</a>
-                                </center>
-                            </div>
-                            <div class="col-lg-4"></div>
-                        </div>
+    <div class="text-center">
+        <h2>DoSimplex</h2>
+        <div class="container">
+            <span>Método:&emsp;</span>
+            <label class="radio-inline" id="objetivo">
+                <input type="radio" id="max" checked name="tipo" value="max">
+                <label for="max">Maximizar</label>
+                <input type="radio" id="min" name="tipo" value="min">
+                <label for="min">Minimizar</label>
+                <br>
+            </label>
+        </div>
+        <div class="container">
+            <div>
+                <label>Variáveis
+                    <input class="form-control" type="number" id="variaveis" name="variaveis">
+                </label>
+            </div>
+            <div>
+                <label>Restrições
+                    <input class="form-control" type="number" id="restricoes" name="restricoes">
+                </label>
+            </div>
+            <div>
+                <label>Iterações
+                    <input class="form-control" type="number" id="iteracoes" name="iteracoes">
+                </label>
+            </div>
+        </div>
+        <br>
+        <button class="btn" type="button" onclick="gerarTabela()">DoSimplex</button>
+    </div>
+    <br>
+    <br>
+
+    <div class="text-center" style="display: none;" id="parametros">
+        <h3>Objetivos e Restrições</h3>
+        <div class="offset-md-3 col-md-6">
+            <table class="table texto-centro">
+                <thead id="linha_funcao">
+                </thead>
+                <tbody id="tabela_restricoes">
+                </tbody>
+            </table>
+            <button class="btn" type="button" onclick="resolverSimplex()">Resolver</button>
+        </div>
+        <hr/>
+    </div>
+
+    <!-- Passo a passo -->
+    <div style="display: none;" id="passoapasso">
+        <hr/>
+        <div class="text-center">
+            <h3 id="passoapassotitle">Passo a Passo </h3>
+            <div class="offset-md-3 col-md-6">
+                <table class="table texto-centro">
+                    <thead></thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="text-center">
+            <button class="btn" id="anterior" onclick="avancar(-1)">Anterior</button>
+            <button class="btn" id="proximo" onclick="avancar(1)">Proximo</button>
+        </div>
+        <hr/>
+    </div>
+
+    <!-- Pagina 2 -->
+    <div class="text-center" style="display: none;" id="solucao">
+        <hr/>
+        <h3>Solução Ótima
+            <button class="btn" onclick="analise()">Análise de Sensibilidade</button>
+            <button class="btn" onclick="reiniciar()">Reiniciar</button>
+        </h3>
+        <div class="offset-md-3 col-md-6">
+            <table class="table texto-centro">
+                <thead id="resultado_header"></thead>
+                <tbody id="resultado_simplex">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <br>
+    <div class="static-modal" id="analise" style="display: none;">
+        <div tabindex="-1" role="dialog" class="modal" style="display: block;">
+            <div class="modal-dialog">
+                <div class="modal-content" role="document">
+                    <div class="modal-header">
+                        <button type="button" class="btn btn-primary pull-right" id="fechar">Voltar</button>
+                    </div>
+                    <div class="modal-body">
+                        <table id="table-analise" border="1">
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
-       
-
-
 </body>
-<script type="text/javascript" src="scripts/funcoes.js" charset="UTF-8"></script>
-<script type="text/javascript" src="content/bootstrap/js/bootstrap.min.js" charset="UTF-8"></script>
-<script type="text/javascript" src="content/bootstrap/js/bootstrap.bundle.min.js" charset="UTF-8"></script>
 
 </html>
